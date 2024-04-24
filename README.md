@@ -41,9 +41,13 @@ events {
 http {
 
 log_format      main '$remote_addr - $remote_user [$time_local] '
-        '$server_name to: $upstream_addr [$request] '
+        '$server_name to: $upstream_addr [$request $status $body_bytes_sent] '
         'upstream_response_time $upstream_response_time '
         'msec $msec request_time $request_time ';
+
+#log_format main '$remote_addr - $remote_user [$time_local] '
+#                           '"$request" $status $body_bytes_sent '
+#                           '"$http_referer" "$http_user_agent" "$gzip_ratio"';
 
 server {
     listen 80;
