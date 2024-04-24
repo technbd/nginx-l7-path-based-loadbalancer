@@ -28,7 +28,46 @@ sudo yum install epel-release
 sudo yum install nginx
 ```
 
-### Configuration:
+### NGINX server to act as a reverse proxy:
+Replace the port number, server name, and the backend server with the actual data. The example forwards all requests made to localhost to the http://127.0.0.1:8181 address.
+
+```
+vim /etc/nginx/nginx.conf
+
+events {
+    #empty placeholder
+}
+
+http {
+
+log_format      main '$remote_addr - $remote_user [$time_local] '
+        '$server_name to: $upstream_addr [$request] '
+        'upstream_response_time $upstream_response_time '
+        'msec $msec request_time $request_time ';
+
+server {
+    listen 80;
+    server_name example1.com;
+
+    access_log  /var/log/nginx/access.log  main;
+
+    location / {
+        proxy_pass http://127.0.0.1:8181;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+       }
+    }
+
+}
+
+save and quit
+```
+
+
+
+### Load Balancer Configuration:
 Create a Load Balancer Configuration File locate the "/etc/nginx/nginx.conf"
 
 
