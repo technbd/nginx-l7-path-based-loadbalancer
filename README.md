@@ -29,48 +29,88 @@ sudo yum install nginx
 ```
 
 ### NGINX server to act as a reverse proxy:
-Replace the port number, server name, and the backend server with the actual data. The example forwards all requests made to localhost to the http://127.0.0.1:8181 address.
+
+Configuring multiple server blocks (also known as virtual hosts) in Nginx allows you to host multiple websites or applications on the same server, each with its own domain name or IP address. Here's a basic example of how you can set up multiple server blocks in Nginx:
 
 ```
-vim /etc/nginx/nginx.conf
-
-events {
-    #empty placeholder
-}
-
-http {
-
-log_format      main '$remote_addr - $remote_user [$time_local] '
-        '$server_name to: $upstream_addr [$request $status $body_bytes_sent] '
-        'upstream_response_time $upstream_response_time '
-        'msec $msec request_time $request_time ';
-
-#log_format main '$remote_addr - $remote_user [$time_local] '
-#                           '"$request" $status $body_bytes_sent '
-#                           '"$http_referer" "$http_user_agent" "$gzip_ratio"';
-
-#log_format main '"Request: $request\n Status: $status\n Request_URI: $request_uri\n Host: $host\n Client_IP: $remote_addr\n Proxy_IP(s): $proxy_add_x_forwarded_for\n Proxy_Hostname: $proxy_host\n Real_IP: $http_x_real_ip\n User_Client: $http_user_agent"';
+vim /etc/nginx/conf.d/server.conf
 
 server {
-    listen 80;
+    listen 8181;
     server_name example1.com;
 
-    access_log  /var/log/nginx/access.log  main;
+    location / {
+        root /var/www/html/example1.com;
+        index index.html;
+    }
+}
+
+server {
+    listen 8182;
+    server_name example2.com;
 
     location / {
-        proxy_pass http://127.0.0.1:8181;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-       }
+        root /var/www/html/example2.com;
+        index index.html;
     }
-
 }
 
 save and quit
 ```
 
+
+The proxy_pass directive in Nginx is used to pass client requests to a specified backend server or servers. It's commonly used for reverse proxying, where Nginx acts as an intermediary between clients and backend servers. 
+
+Here, you replace the port number, server name, and the backend server with the actual data. The example forwards all requests made to localhost to the http://127.0.0.1:8181 address.
+
+```
+vim /etc/nginx/conf.d/reverse.conf
+
+#log_format      custom_log '$remote_addr - $remote_user [$time_local] '
+#        '$server_name to: $upstream_addr [$request $status $body_bytes_sent] '
+#        'upstream_response_time $upstream_response_time '
+#        'msec $msec request_time $request_time ';
+
+
+log_format custom_log '"Request: $request\n Status: $status\n Request_URI: $request_uri\n Host: $host\n Client_IP: $remote_addr\n Proxy_IP(s): $proxy_add_x_forwarded_for\n Proxy_Hostname: $proxy_host\n Real_IP: $http_x_real_ip\n User_Client: $http_user_agent"';
+
+#log_format custom_log '$remote_addr - $remote_user [$time_local] '
+#                           '"$request" $status $body_bytes_sent '
+#                           '"$http_referer" "$http_user_agent" "$gzip_ratio"';
+
+
+server {
+    listen 80;
+    server_name example1.com;
+
+    access_log  /var/log/nginx/custom_access.log  custom_log;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    location / {
+        proxy_pass http://127.0.0.1:8181;
+
+       }
+    }
+
+
+save and quit
+```
+
+
+```
+nginx -t
+systemctl restart nginx
+```
+
+
+```
+curl localhost -I
+curl localhost -v
+```
 
 
 ### Load Balancer Configuration:
