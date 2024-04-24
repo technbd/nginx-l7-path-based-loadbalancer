@@ -32,6 +32,27 @@ sudo yum install nginx
 
 Configuring multiple server blocks (also known as virtual hosts) in Nginx allows you to host multiple websites or applications on the same server, each with its own domain name or IP address. Here's a basic example of how you can set up multiple server blocks in Nginx:
 
+
+```
+ll /var/www/html/
+
+drwxr-xr-x 2 root root 24 Apr 24 22:43 example1.com
+drwxr-xr-x 3 root root 36 Apr 24 23:50 example2.com
+```
+
+
+```
+tree
+.
+├── example1.com
+│   └── index.html
+└── example2.com
+    ├── app2
+    │   └── index.html
+    └── index.html
+```
+
+
 ```
 vim /etc/nginx/conf.d/server.conf
 
@@ -92,11 +113,17 @@ server {
 
     location / {
         proxy_pass http://127.0.0.1:8181;
-
-       }
     }
 
+    ### multiple proxy_pass:
+    location /app2/ {
+        proxy_pass http://127.0.0.1:8182;
+        #proxy_pass http://127.0.0.1:8182/;
+    }
 
+}
+
+    
 save and quit
 ```
 
