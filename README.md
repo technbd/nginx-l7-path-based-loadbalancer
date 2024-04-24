@@ -49,6 +49,8 @@ log_format      main '$remote_addr - $remote_user [$time_local] '
 #                           '"$request" $status $body_bytes_sent '
 #                           '"$http_referer" "$http_user_agent" "$gzip_ratio"';
 
+#log_format main '"Request: $request\n Status: $status\n Request_URI: $request_uri\n Host: $host\n Client_IP: $remote_addr\n Proxy_IP(s): $proxy_add_x_forwarded_for\n Proxy_Hostname: $proxy_host\n Real_IP: $http_x_real_ip\n User_Client: $http_user_agent"';
+
 server {
     listen 80;
     server_name example1.com;
